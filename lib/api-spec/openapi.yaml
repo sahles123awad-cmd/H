@@ -1,0 +1,1131 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: Yalla Wassel delivery management API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: auth
+    description: Authentication
+  - name: zones
+    description: Delivery zones
+  - name: users
+    description: Users and drivers
+  - name: orders
+    description: Delivery orders
+  - name: ratings
+    description: Driver ratings
+  - name: notifications
+    description: User notifications
+  - name: dashboard
+    description: Dashboard statistics
+  - name: ai
+    description: AI-powered suggestions
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  # ── Auth ────────────────────────────────────────────────────────────────────
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login with phone and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterInput"
+      responses:
+        "201":
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "409":
+          description: Phone already registered
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      responses:
+        "200":
+          description: Logged out
+
+  # ── Zones ────────────────────────────────────────────────────────────────────
+  /zones:
+    get:
+      operationId: listZones
+      tags: [zones]
+      summary: List all active zones
+      parameters:
+        - name: governorate
+          in: query
+          schema:
+            type: string
+        - name: region
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of zones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Zone"
+
+  /zones/{id}:
+    get:
+      operationId: getZone
+      tags: [zones]
+      summary: Get zone by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Zone
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Zone"
+        "404":
+          description: Not found
+
+  # ── Users / Drivers ──────────────────────────────────────────────────────────
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List all users (manager only)
+      parameters:
+        - name: role
+          in: query
+          schema:
+            type: string
+            enum: [manager, driver, customer]
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+
+  /users/drivers:
+    get:
+      operationId: listDrivers
+      tags: [users]
+      summary: List all drivers with their stats
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [available, busy, off]
+        - name: zoneId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of drivers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DriverWithStats"
+
+  /users/{id}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Get user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: Not found
+
+  /users/{id}/status:
+    patch:
+      operationId: updateUserStatus
+      tags: [users]
+      summary: Update driver status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserStatusUpdate"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  # ── Orders ────────────────────────────────────────────────────────────────────
+  /orders:
+    get:
+      operationId: listOrders
+      tags: [orders]
+      summary: List orders
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: priority
+          in: query
+          schema:
+            type: string
+        - name: fromZoneId
+          in: query
+          schema:
+            type: integer
+        - name: toZoneId
+          in: query
+          schema:
+            type: integer
+        - name: driverId
+          in: query
+          schema:
+            type: integer
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: date
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OrderWithDetails"
+
+    post:
+      operationId: createOrder
+      tags: [orders]
+      summary: Create a new order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderInput"
+      responses:
+        "201":
+          description: Created order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderWithDetails"
+
+  /orders/{id}:
+    get:
+      operationId: getOrder
+      tags: [orders]
+      summary: Get order by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderWithDetails"
+        "404":
+          description: Not found
+
+    patch:
+      operationId: updateOrder
+      tags: [orders]
+      summary: Update order details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderUpdate"
+      responses:
+        "200":
+          description: Updated order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderWithDetails"
+
+    delete:
+      operationId: deleteOrder
+      tags: [orders]
+      summary: Cancel/delete an order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /customer/orders:
+    post:
+      operationId: createCustomerOrder
+      tags: [orders]
+      summary: Create an order as a customer (auth required, customer role)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomerOrderInput"
+      responses:
+        "201":
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderWithDetails"
+        "400":
+          description: Validation error
+    get:
+      operationId: getMyOrders
+      tags: [orders]
+      summary: Get current customer's orders
+      responses:
+        "200":
+          description: Customer orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OrderWithDetails"
+
+  /orders/{id}/assign:
+    patch:
+      operationId: assignOrderDriver
+      tags: [orders]
+      summary: Assign a driver to an order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderAssign"
+      responses:
+        "200":
+          description: Updated order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderWithDetails"
+
+  /orders/{id}/eta:
+    patch:
+      operationId: setOrderEta
+      tags: [orders]
+      summary: Driver sets expected delivery time (ETA)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderEtaInput"
+      responses:
+        "200":
+          description: Updated order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderWithDetails"
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+
+  /orders/{id}/status:
+    patch:
+      operationId: updateOrderStatus
+      tags: [orders]
+      summary: Update order status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderStatusUpdate"
+      responses:
+        "200":
+          description: Updated order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderWithDetails"
+
+  /orders/track/{token}:
+    get:
+      operationId: trackOrder
+      tags: [orders]
+      summary: Track order by public token (no auth required)
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Order tracking info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderTracking"
+        "404":
+          description: Order not found
+
+  # ── Ratings ────────────────────────────────────────────────────────────────────
+  /ratings:
+    get:
+      operationId: listRatings
+      tags: [ratings]
+      summary: List ratings
+      parameters:
+        - name: driverId
+          in: query
+          schema:
+            type: integer
+        - name: orderId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of ratings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Rating"
+
+    post:
+      operationId: createRating
+      tags: [ratings]
+      summary: Submit a rating for an order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RatingInput"
+      responses:
+        "201":
+          description: Created rating
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Rating"
+
+  # ── Notifications ────────────────────────────────────────────────────────────
+  /notifications:
+    get:
+      operationId: listNotifications
+      tags: [notifications]
+      summary: List my notifications
+      responses:
+        "200":
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+
+  /notifications/{id}/read:
+    patch:
+      operationId: markNotificationRead
+      tags: [notifications]
+      summary: Mark a notification as read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Updated notification
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+
+  /notifications/read-all:
+    patch:
+      operationId: markAllNotificationsRead
+      tags: [notifications]
+      summary: Mark all notifications as read
+      responses:
+        "200":
+          description: Success
+
+  # ── Dashboard ────────────────────────────────────────────────────────────────
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [dashboard]
+      summary: Get today's dashboard statistics
+      responses:
+        "200":
+          description: Dashboard statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  # ── AI ───────────────────────────────────────────────────────────────────────
+  /ai/suggest-driver:
+    post:
+      operationId: suggestDriver
+      tags: [ai]
+      summary: AI-powered driver suggestion for an order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DriverSuggestionRequest"
+      responses:
+        "200":
+          description: Suggested driver
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DriverSuggestionResponse"
+
+  /ai/detect-zone:
+    post:
+      operationId: detectZone
+      tags: [ai]
+      summary: AI zone detection from address text
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ZoneDetectionRequest"
+      responses:
+        "200":
+          description: Detected zone suggestion
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ZoneDetectionResponse"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    # ── Auth schemas ───────────────────────────────────────────────────────────
+    LoginInput:
+      type: object
+      required: [phone, password]
+      properties:
+        phone:
+          type: string
+        password:
+          type: string
+
+    RegisterInput:
+      type: object
+      required: [fullName, phone, password, role]
+      properties:
+        fullName:
+          type: string
+        phone:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+          enum: [manager, driver, customer]
+        zoneId:
+          type: ["integer", "null"]
+
+    AuthResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+
+    # ── Zone schemas ───────────────────────────────────────────────────────────
+    Zone:
+      type: object
+      required: [id, nameAr, nameEn, governorate, region, isActive]
+      properties:
+        id:
+          type: integer
+        nameAr:
+          type: string
+        nameEn:
+          type: string
+        governorate:
+          type: string
+        region:
+          type: string
+        isActive:
+          type: boolean
+
+    # ── User schemas ───────────────────────────────────────────────────────────
+    User:
+      type: object
+      required: [id, fullName, phone, role, status, isActive, createdAt]
+      properties:
+        id:
+          type: integer
+        fullName:
+          type: string
+        phone:
+          type: string
+        email:
+          type: ["string", "null"]
+        role:
+          type: string
+          enum: [manager, driver, customer]
+        zoneId:
+          type: ["integer", "null"]
+        zoneName:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [available, busy, off]
+        avatarUrl:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+
+    DriverWithStats:
+      type: object
+      required: [id, fullName, phone, status, isActive, createdAt, totalOrders, deliveredToday, avgRating]
+      properties:
+        id:
+          type: integer
+        fullName:
+          type: string
+        phone:
+          type: string
+        zoneId:
+          type: ["integer", "null"]
+        zoneName:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [available, busy, off]
+        avatarUrl:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+        totalOrders:
+          type: integer
+        deliveredToday:
+          type: integer
+        avgRating:
+          type: number
+        isTrusted:
+          type: boolean
+
+    UserStatusUpdate:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [available, busy, off]
+
+    # ── Order schemas ──────────────────────────────────────────────────────────
+    Order:
+      type: object
+      required: [id, orderId, fromBusiness, fromAddress, fromZoneId, toCustomerName, toPhone, toAddress, toZoneId, priority, status, createdAt, trackingToken]
+      properties:
+        id:
+          type: integer
+        orderId:
+          type: string
+        fromBusiness:
+          type: string
+        fromAddress:
+          type: string
+        fromZoneId:
+          type: integer
+        toCustomerName:
+          type: string
+        toPhone:
+          type: string
+        toAddress:
+          type: string
+        toZoneId:
+          type: integer
+        priority:
+          type: string
+          enum: [urgent, normal]
+        status:
+          type: string
+          enum: [pending, assigned, picked, delivered, cancelled]
+        driverId:
+          type: ["integer", "null"]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        assignedAt:
+          type: ["string", "null"]
+        pickedAt:
+          type: ["string", "null"]
+        deliveredAt:
+          type: ["string", "null"]
+        eta:
+          type: ["string", "null"]
+        trackingToken:
+          type: string
+
+    OrderWithDetails:
+      type: object
+      required: [id, orderId, fromBusiness, fromAddress, fromZoneId, toCustomerName, toPhone, toAddress, toZoneId, priority, status, createdAt, trackingToken]
+      properties:
+        id:
+          type: integer
+        orderId:
+          type: string
+        fromBusiness:
+          type: string
+        fromAddress:
+          type: string
+        fromZoneId:
+          type: integer
+        fromZoneName:
+          type: ["string", "null"]
+        toCustomerName:
+          type: string
+        toPhone:
+          type: string
+        toAddress:
+          type: string
+        toZoneId:
+          type: integer
+        toZoneName:
+          type: ["string", "null"]
+        priority:
+          type: string
+          enum: [urgent, normal]
+        status:
+          type: string
+          enum: [pending, assigned, picked, delivered, cancelled]
+        driverId:
+          type: ["integer", "null"]
+        driverName:
+          type: ["string", "null"]
+        driverPhone:
+          type: ["string", "null"]
+        driverAvgRating:
+          type: ["number", "null"]
+        customerId:
+          type: ["integer", "null"]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        assignedAt:
+          type: ["string", "null"]
+        pickedAt:
+          type: ["string", "null"]
+        deliveredAt:
+          type: ["string", "null"]
+        eta:
+          type: ["string", "null"]
+        trackingToken:
+          type: string
+
+    OrderTracking:
+      type: object
+      required: [orderId, status, fromBusiness, toCustomerName, toAddress, toZoneName, priority, createdAt, trackingToken]
+      properties:
+        orderId:
+          type: string
+        status:
+          type: string
+          enum: [pending, assigned, picked, delivered, cancelled]
+        fromBusiness:
+          type: string
+        toCustomerName:
+          type: string
+        toAddress:
+          type: string
+        toZoneName:
+          type: ["string", "null"]
+        priority:
+          type: string
+        driverName:
+          type: ["string", "null"]
+        driverAvgRating:
+          type: ["number", "null"]
+        createdAt:
+          type: string
+        assignedAt:
+          type: ["string", "null"]
+        pickedAt:
+          type: ["string", "null"]
+        deliveredAt:
+          type: ["string", "null"]
+        eta:
+          type: ["string", "null"]
+        trackingToken:
+          type: string
+        hasRating:
+          type: boolean
+        estimatedMinutes:
+          type: ["integer", "null"]
+
+    CustomerOrderInput:
+      type: object
+      required: [fromBusiness, fromAddress, fromZoneId, toAddress, toZoneId, category]
+      properties:
+        category:
+          type: string
+          enum: [food, flowers, pharmacy, grocery, electronics, clothing, other]
+        fromBusiness:
+          type: string
+        fromAddress:
+          type: string
+        fromZoneId:
+          type: integer
+        toAddress:
+          type: string
+        toZoneId:
+          type: integer
+        notes:
+          type: string
+
+    OrderInput:
+      type: object
+      required: [fromBusiness, fromAddress, fromZoneId, toCustomerName, toPhone, toAddress, toZoneId, priority]
+      properties:
+        fromBusiness:
+          type: string
+        fromAddress:
+          type: string
+        fromZoneId:
+          type: integer
+        toCustomerName:
+          type: string
+        toPhone:
+          type: string
+        toAddress:
+          type: string
+        toZoneId:
+          type: integer
+        priority:
+          type: string
+          enum: [urgent, normal]
+        notes:
+          type: string
+
+    OrderUpdate:
+      type: object
+      properties:
+        fromBusiness:
+          type: string
+        fromAddress:
+          type: string
+        fromZoneId:
+          type: integer
+        toCustomerName:
+          type: string
+        toPhone:
+          type: string
+        toAddress:
+          type: string
+        toZoneId:
+          type: integer
+        priority:
+          type: string
+          enum: [urgent, normal]
+        notes:
+          type: string
+
+    OrderAssign:
+      type: object
+      required: [driverId]
+      properties:
+        driverId:
+          type: integer
+
+    OrderStatusUpdate:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [pending, assigned, picked, delivered, cancelled]
+
+    OrderEtaInput:
+      type: object
+      required: [minutesFromNow]
+      properties:
+        minutesFromNow:
+          type: integer
+          minimum: 5
+          maximum: 180
+
+    # ── Rating schemas ─────────────────────────────────────────────────────────
+    Rating:
+      type: object
+      required: [id, orderId, driverId, customerName, stars, createdAt]
+      properties:
+        id:
+          type: integer
+        orderId:
+          type: integer
+        driverId:
+          type: integer
+        customerName:
+          type: string
+        stars:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    RatingInput:
+      type: object
+      required: [orderId, driverId, customerName, stars]
+      properties:
+        orderId:
+          type: integer
+        driverId:
+          type: integer
+        customerName:
+          type: string
+        stars:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+
+    # ── Notification schemas ──────────────────────────────────────────────────
+    Notification:
+      type: object
+      required: [id, userId, message, type, isRead, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        message:
+          type: string
+        type:
+          type: string
+          enum: [order, system, rating]
+        isRead:
+          type: boolean
+        createdAt:
+          type: string
+
+    # ── Dashboard schemas ─────────────────────────────────────────────────────
+    DashboardStats:
+      type: object
+      required: [totalToday, deliveredToday, inProgress, pending, avgRatingWeek, totalDrivers, availableDrivers]
+      properties:
+        totalToday:
+          type: integer
+        deliveredToday:
+          type: integer
+        inProgress:
+          type: integer
+        pending:
+          type: integer
+        cancelled:
+          type: integer
+        avgRatingWeek:
+          type: number
+        totalDrivers:
+          type: integer
+        availableDrivers:
+          type: integer
+
+    # ── AI schemas ─────────────────────────────────────────────────────────────
+    DriverSuggestionRequest:
+      type: object
+      required: [orderId]
+      properties:
+        orderId:
+          type: integer
+
+    DriverSuggestionResponse:
+      type: object
+      required: [driverId, driverName, reason]
+      properties:
+        driverId:
+          type: integer
+        driverName:
+          type: string
+        reason:
+          type: string
+
+    ZoneDetectionRequest:
+      type: object
+      required: [address]
+      properties:
+        address:
+          type: string
+
+    ZoneDetectionResponse:
+      type: object
+      required: [zoneId, zoneName, confidence]
+      properties:
+        zoneId:
+          type: integer
+        zoneName:
+          type: string
+        confidence:
+          type: string

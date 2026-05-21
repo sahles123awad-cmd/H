@@ -1,0 +1,395 @@
+Add the following new features to the existing "يلا وصل" 
+project. Keep all existing code and only ADD these features.
+
+═══════════════════════════════════════════════
+👩‍💼 MANAGER PAGE — NEW FEATURES
+═══════════════════════════════════════════════
+
+── Advanced Order Management ──────────────────
+
+1. ADVANCED FILTERS
+   Add filter bar above orders table:
+   - Filter by: status, zone, driver, priority, date range
+   - Search input: order ID or customer name
+   - "مسح الفلاتر" reset button
+   - Filters persist in URL params
+
+2. EXPORT REPORTS
+   Button "تصدير التقرير" with dropdown:
+   - Export as PDF (use jsPDF library)
+   - Export as Excel (use SheetJS/xlsx library)
+   PDF includes: logo, date, orders table, summary stats
+   Excel includes: all order fields + driver names
+
+3. ORDER LABEL WITH QR CODE
+   Button on each order row: "🖨️ طباعة"
+   Opens print modal showing:
+   - Order ID in large text
+   - QR code (use qrcode.react library) containing:
+     the public tracking URL /track/:token
+   - From address, To address, customer name, priority
+   - Print button that triggers window.print()
+   CSS: @media print { hide everything except modal }
+
+4. COPY TRACKING LINK
+   Button on each order: "📋 رابط التتبع"
+   Copies full tracking URL to clipboard
+   Shows toast: "✅ تم نسخ الرابط"
+
+5. REPEAT ORDER
+   Button on delivered orders: "🔄 تكرار"
+   Opens new order form pre-filled with same data
+   Driver field empty (needs reassignment)
+
+6. ARCHIVE ORDERS
+   Toggle button: "الأرشيف" tab next to "النشطة" tab
+   Archived = orders older than 30 days + delivered
+   Auto-archive delivered orders after 7 days
+   Manager can manually archive any order
+
+── Driver Management ──────────────────────────
+
+7. DRIVER SCHEDULE
+   New page /manager/schedule
+   Weekly grid view (7 days × drivers)
+   Manager clicks cell to mark driver as:
+   working / day-off / sick
+   Colors: green=working, red=off, yellow=sick
+
+8. DRIVER HISTORY PAGE
+   Click on driver name → opens drawer/modal
+   Shows:
+   - All past orders (paginated, 20 per page)
+   - Monthly performance chart (bar chart)
+   - All ratings received with comments
+   - Total deliveries, average rating, completion rate
+
+9. ASSIGN FIXED ZONES TO DRIVER
+   In driver profile: "المناطق الثابتة"
+   Multi-select dropdown from zones list
+   When AI suggests drivers, prioritize zone matches
+   Show zone tags on driver card
+
+10. INSTANT DRIVER NOTIFICATION
+    When manager assigns order to driver:
+    - Show toast to manager: "✅ تم إرسال إشعار لـ [name]"
+    - Create notification record in DB for driver
+    - Driver sees red badge on bell icon
+    - Notification text: "طلب جديد تم تعيينه لك: #[order_id]"
+
+11. SUSPEND DRIVER
+    In driver options menu (⋮ button):
+    "إيقاف مؤقت" button
+    Sets driver status to 'suspended'
+    Suspended drivers shown in red in list
+    "إعادة تفعيل" button to restore
+    Suspended drivers cannot receive new orders
+
+── Analytics Dashboard ────────────────────────
+
+12. DRIVER COMPARISON TABLE
+    Page /manager/analytics
+    Table showing all drivers side by side:
+    Columns: Name | Today | This Week | This Month | 
+             Avg Rating | Completion % | Fastest Delivery
+    Sortable by any column
+    Top performer highlighted with 🏆
+
+13. HEAT MAP BY ZONE
+    Use Recharts treemap component
+    Each zone = rectangle, size = order count
+    Color intensity = demand level
+    Orange = high demand, light = low demand
+    Title: "أكثر المناطق طلباً"
+
+14. PEAK HOURS CHART
+    Line chart (Recharts) showing orders by hour
+    X axis: 8AM to 10PM
+    Y axis: order count
+    Highlight peak hours in orange
+    Title: "ساعات الذروة"
+
+15. CANCELLATION RATE
+    Stat card showing:
+    - Cancellation % this month
+    - Bar chart: cancellation reasons
+    Reasons: "لم يُجب الزبون" / "عنوان خاطئ" / 
+             "طلب الزبون الإلغاء" / "أخرى"
+    Manager can add reason when cancelling order
+
+16. REVENUE TRACKING
+    Stat cards: Daily / Weekly / Monthly revenue
+    Based on: order count × average delivery fee (3 JOD default)
+    Manager can set delivery fee per zone in settings
+    Line chart showing revenue trend last 30 days
+
+── Advanced AI ────────────────────────────────
+
+17. DEMAND PREDICTION
+    At top of dashboard, AI banner:
+    "🤖 توقع الذكاء الاصطناعي"
+    Calls Claude API with last 7 days order patterns
+    Claude predicts: 
+    - Expected order count today
+    - Which zones will be busiest
+    - Recommendation: "يُنصح بتوفير سائق إضافي في الصويفية"
+    Refresh button to get new prediction
+
+18. DRIVER DELAY ALERT
+    Background check every 5 minutes (setInterval)
+    If driver has order in 'picked' status for > 45 min:
+    Show warning banner: 
+    "⚠️ محمود سالم تأخر عن معدله في طلب #1005"
+    Manager can dismiss or call driver
+
+═══════════════════════════════════════════════
+🏍️ DRIVER PAGE — NEW FEATURES
+═══════════════════════════════════════════════
+
+19. OPTIMAL ROUTE ORDER
+    If driver has 3+ orders:
+    Button "🗺️ أفضل ترتيب للطلبات"
+    Calls Claude API with all delivery zones
+    Claude suggests optimal delivery sequence
+    Orders re-sorted on screen with explanation
+
+20. REJECT ORDER WITH REASON
+    On each assigned order: "رفض" button (red, small)
+    Opens modal with reason options:
+    "المنطقة بعيدة" / "الدراجة معطلة" / "ظرف طارئ" / "أخرى"
+    On confirm → order returns to pending
+    Manager gets notification: "[driver] رفض الطلب #X"
+    Reason saved in order record
+
+21. REPORT PROBLEM ON ORDER
+    Button "🚨 إبلاغ عن مشكلة" on each order
+    Options: "زبون لا يجيب" / "عنوان غلط" / 
+             "حادث" / "أخرى"
+    Creates alert for manager
+    Manager sees red badge on problematic orders
+
+22. ADD NOTE TO ORDER
+    Small "📝" icon on each order card
+    Opens text input: "ملاحظة للمدير"
+    Note saved and visible in manager's order detail
+    Shows note preview on card if exists
+
+23. FULL DELIVERY HISTORY
+    Tab "سجل التسليمات" on driver dashboard
+    List of all past delivered orders
+    Each shows: order ID, zone, customer, date, rating received
+    Total count at top: "أتممت 187 توصيلة"
+
+24. REWARD POINTS SYSTEM
+    Each successful delivery = 10 points
+    Urgent delivery = 15 points  
+    5-star rating = bonus 5 points
+    Points shown prominently on dashboard
+    Progress bar to next reward level:
+    Bronze (0-500) → Silver (500-1500) → Gold (1500+)
+    Show badge on profile: 🥉 🥈 🥇
+
+25. PERSONAL PERFORMANCE
+    Card on driver dashboard:
+    - My rating vs team average (gauge chart)
+    - My deliveries vs team average
+    - "أنت أفضل من X% من السائقين" motivational text
+
+26. ACHIEVEMENT BADGES
+    Earn badges automatically:
+    🚀 "أول توصيلة" — first delivery
+    💯 "مئة توصيلة" — 100 deliveries  
+    ⭐ "نجم الأسبوع" — highest rated this week
+    ⚡ "الأسرع" — fastest avg delivery this week
+    🏆 "الأفضل شهرياً" — top driver of the month
+    Badges shown on driver profile with date earned
+
+27. QUICK MESSAGE TO MANAGER
+    Floating button on driver dashboard: "💬"
+    Opens quick message panel
+    Preset messages: 
+    "في الطريق" / "تأخرت قليلاً" / 
+    "انتهيت من جميع الطلبات" / "رسالة مخصصة"
+    Manager sees messages in notification panel
+
+28. REPORT INCIDENT / DELAY
+    Button "🚨 إبلاغ عن تأخير"
+    Select reason + estimated delay in minutes
+    Manager notified immediately
+    Order card shows delay warning badge
+
+29. REQUEST DAY OFF
+    Button "📅 طلب إجازة" in profile/settings
+    Date picker for the requested day
+    Manager sees request in dashboard
+    Approve / Reject with one click
+    Driver notified of decision
+
+30. DAILY GOAL PROGRESS BAR
+    Manager sets daily goal per driver (default: 10 orders)
+    Driver sees on dashboard:
+    "هدفك اليوم: 7 / 10 توصيلات"
+    Animated progress bar in orange
+    Congratulations animation when goal reached 🎉
+
+═══════════════════════════════════════════════
+📦 CUSTOMER TRACKING PAGE — NEW FEATURES  
+═══════════════════════════════════════════════
+
+31. INTERACTIVE MAP
+    Use Leaflet.js (already in project)
+    Show map with two markers:
+    - 📦 Pickup location (from address)
+    - 🏠 Delivery location (to address)  
+    - 🏍️ Driver marker (static for now, shows zone center)
+    Map centered on Amman (31.9539° N, 35.9106° E)
+    No real GPS needed — just show zone area
+
+32. ESTIMATED ARRIVAL TIME
+    Calculate ETA based on:
+    - Order status (pending=60min, picked=25min, assigned=45min)
+    - Show countdown: "يصل خلال ~25 دقيقة"
+    - Update display when driver changes status
+    - Show "🎉 تم التسليم!" when delivered
+
+33. BROWSER NOTIFICATION
+    On page load, ask for notification permission
+    When order status changes → send browser notification:
+    Title: "يلا وصل 🏍️"
+    Body: "طلبك #1005 أصبح في الطريق!"
+    Requires: polling every 30 seconds or WebSocket
+
+34. ORDER HISTORY BY PHONE
+    Section at bottom of tracking page:
+    "عرض طلباتك السابقة"
+    Input: phone number
+    Shows last 5 orders for that phone number
+    Each order: ID, date, status, from/to
+
+35. CHANGE DELIVERY ADDRESS
+    Button: "✏️ تعديل عنوان التسليم"
+    Only available when status = pending or assigned
+    Opens text input for new address/notes
+    Saves to order, manager gets notification
+
+36. ADD NOTE FOR DRIVER
+    Input field: "ملاحظة للسائق"
+    Example: "اتصل قبل الوصول" / "الطابق الثالث"
+    Saved to order, shown on driver's order card
+    Can add/edit until status = picked
+
+37. POSTPONE DELIVERY
+    Button: "⏰ تأجيل التسليم"
+    Only when status = pending
+    Select time: +1 hour / +2 hours / +tomorrow morning
+    Order gets scheduled_for timestamp
+    Manager sees scheduled orders separately
+
+38. COMPLAINT TO MANAGEMENT
+    Button: "📢 شكوى" (subtle, bottom of page)
+    Form: reason (dropdown) + description + phone
+    Reasons: "تأخر كثيراً" / "سائق غير محترم" / 
+             "طلب تالف" / "أخرى"
+    Saved to DB, manager sees in complaints section
+
+39. DETAILED RATING AFTER DELIVERY
+    After delivery, rating modal shows:
+    Step 1: Overall stars 1-5
+    Step 2 (if ≥3): Individual ratings:
+    - السرعة ⚡ (1-5 stars)
+    - الأمانة 🛡️ (1-5 stars)  
+    - اللطف 😊 (1-5 stars)
+    Step 3: Optional comment text
+    Step 4: "شكراً! تقييمك يساعدنا" confirmation
+    All sub-ratings saved separately in DB
+
+40. THANK DRIVER MESSAGE
+    After rating submitted, option:
+    "💌 أرسل رسالة شكر للسائق"
+    Preset messages or custom text
+    Driver sees it as notification with 💌 icon
+    Makes driver feel valued
+
+41. SHARE TRACKING LINK
+    Button: "مشاركة رابط التتبع"
+    Options: Copy link / WhatsApp share
+    WhatsApp: opens wa.me with pre-written message:
+    "تابع طلبي على: [tracking_url]"
+
+42. ELECTRONIC INVOICE
+    Button: "🧾 فاتورة إلكترونية" (after delivery)
+    Shows modal with:
+    - Order ID, date, from, to, driver name
+    - Delivery fee
+    - يلا وصل logo
+    Print button + Download as PDF (jsPDF)
+
+═══════════════════════════════════════════════
+🗄️ DATABASE ADDITIONS NEEDED
+═══════════════════════════════════════════════
+
+Add to orders table:
+- scheduled_for (datetime, nullable)
+- cancel_reason (text, nullable)
+- driver_note (text, nullable)  
+- customer_note (text, nullable)
+- delivery_fee (float, default 3.0)
+
+Add new tables:
+
+Table: driver_schedule
+- id, driver_id, date, status (working/off/sick)
+
+Table: driver_zones (many-to-many)
+- driver_id, zone_id
+
+Table: reward_points
+- id, driver_id, points, reason, created_at
+
+Table: badges
+- id, driver_id, badge_type, earned_at
+
+Table: complaints
+- id, order_id, customer_phone, reason, 
+  description, status (open/resolved), created_at
+
+Table: day_off_requests
+- id, driver_id, requested_date, 
+  status (pending/approved/rejected),
+  manager_note, created_at
+
+Table: detailed_ratings
+- id, rating_id (FK), speed_stars, 
+  honesty_stars, kindness_stars
+
+Table: driver_messages
+- id, driver_id, message, is_preset, 
+  is_read_by_manager, created_at
+
+═══════════════════════════════════════════════
+📦 NEW NPM PACKAGES NEEDED
+═══════════════════════════════════════════════
+npm install qrcode.react jspdf xlsx 
+           react-to-print leaflet 
+           react-leaflet recharts
+           date-fns react-datepicker
+
+═══════════════════════════════════════════════
+⚙️ IMPLEMENTATION NOTES
+═══════════════════════════════════════════════
+- Keep ALL existing features working
+- Add features incrementally, test each one
+- Use existing color scheme: #FF6B00 orange theme
+- All new text in Arabic
+- All new components RTL
+- Toast notifications for every user action
+- Loading states on all async operations
+- Mobile responsive for driver features
+
+Build order:
+1. DB schema updates + migrations
+2. New API endpoints
+3. Frontend components
+4. Connect and test
+
+After each feature say: "✅ Feature X done"

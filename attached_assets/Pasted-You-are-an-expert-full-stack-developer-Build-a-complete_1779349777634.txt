@@ -1,0 +1,477 @@
+You are an expert full-stack developer. Build a complete 
+delivery management system called "يلا وصل" (Yalla Wassel).
+The design must look and feel exactly like Careem or Talabat 
+— professional, modern, mobile-first.
+
+═══════════════════════════════════════════════
+🎨 DESIGN SYSTEM — MANDATORY
+═══════════════════════════════════════════════
+Primary Color:    #FF6B00 (orange — like Careem)
+Secondary Color:  #1A1A2E (dark navy)
+Accent:           #FFD000 (yellow)
+Success:          #00C851
+Background:       #F5F5F5 (light mode)
+Card Background:  #FFFFFF
+Font Arabic:      Tajawal (Google Fonts)
+Font English:     Inter (Google Fonts)
+
+Style rules:
+- Rounded corners: 16px on cards, 12px on buttons
+- Shadows: 0 4px 20px rgba(0,0,0,0.08)
+- Bottom navigation bar on mobile (like Talabat)
+- Top header with logo + notifications on desktop
+- Sidebar on desktop, bottom nav on mobile
+- Every button has hover animation
+- Loading skeletons instead of spinners
+- Toast notifications for every action
+- RTL Arabic layout throughout
+
+═══════════════════════════════════════════════
+🛠️ TECH STACK
+═══════════════════════════════════════════════
+Frontend:  React 18 + Tailwind CSS + Framer Motion
+Backend:   Python Flask + SQLAlchemy
+Database:  SQLite (dev) → PostgreSQL ready
+Auth:      JWT tokens (access + refresh)
+AI:        Anthropic Claude API
+Icons:     Lucide React
+Maps:      Leaflet.js (free, no API key)
+Run:       Concurrently (frontend + backend together)
+
+═══════════════════════════════════════════════
+🗺️ JORDAN ZONES — COMPLETE DATABASE
+═══════════════════════════════════════════════
+
+Store ALL these zones in the database table `zones`:
+
+── AMMAN WEST (غرب عمان) ──────────────────────
+Abdul Aziz Al-Masri St | شارع عبد العزيز المصري
+Abdul Hamid Sharaf St  | شارع عبد الحميد شرف
+Abdullah Ghosheh St    | شارع عبدالله غوشة
+Abu Baker Al-Siddiq St | شارع أبو بكر الصديق
+Al-Amir Shaker St      | شارع الأمير شاكر
+Al-Andalus St          | شارع الأندلس
+Al-Baouniyeh           | البعونية
+Al-Bnayyat             | البنيات
+Al-Fuhais              | الفحيص
+Al-Hummar              | الحمر
+Al-Jubaiha             | الجبيهة
+Al-Kamaliyeh           | الكمالية
+Al-Kursi               | الكرسي
+Al-Luweibdeh           | اللويبدة
+Al-Madina Al-Riyadhiyeh | المدينة الرياضية
+Al-Maseef              | الماصيف
+Al-Muqabalayn          | المقابلين
+Al-Nuzha               | النزهة
+Al-Qusayr             | القصير
+Al-Rabieh              | الرابية
+Al-Rainbow St          | شارع الرينبو
+Al-Rawabi              | الروابي
+Al-Shmaisani           | الشميساني
+Al-Sweifieh            | الصويفية
+Al-Tla'a Al-Ali        | تلاع العلي
+Al-Urdon St            | شارع الأردن
+Al-Wahdat              | الوحدات
+Abdoun                 | عبدون
+Abdoun Circle          | دوار عبدون
+Abu Nsair              | أبو نصير
+Airport Road           | طريق المطار
+Anas Ibn Malik St      | شارع أنس بن مالك
+Deir Ghbar             | دير غبار
+Gardens (Hada'ek)      | الحدائق
+Hai Nazzal             | حي نزال
+Ibn Khaldoun St        | شارع ابن خلدون
+Ibrahim Al-Mawlawi St  | شارع إبراهيم المولوي
+Jabal Al-Hussein       | جبل الحسين
+Jabal Al-Webdeh        | جبل اللويبدة
+Jabal Amman            | جبل عمان
+Jubeiha                | الجبيهة
+Khilda                 | خلدا
+Kulliyat Al-Shariah St | شارع كلية الشريعة
+Mecca St               | شارع مكة
+Medina St              | شارع المدينة
+Mithqal Al-Fayez St    | شارع مثقال الفايز
+Nasr City              | مدينة نصر
+Omar Bin Al-Khattab St | شارع عمر بن الخطاب
+Princess Basma St      | شارع الأميرة بسمة
+Queen Alia St          | شارع الملكة عاليا
+Queen Nour St          | شارع الملكة نور
+Queen Rania St         | شارع الملكة رانيا
+Raghadan               | رغدان
+Ras Al-Ain             | رأس العين
+Um Summaq              | أم سماق
+Um Uthaina             | أم أذينة
+University of Jordan   | الجامعة الأردنية
+Wadi Saqra             | وادي السقرا
+Wasfi Al-Tal St        | شارع وصفي التل
+
+── AMMAN EAST (شرق عمان) ─────────────────────
+Al-Hashmi Al-Shamali   | الهاشمي الشمالي
+Al-Hashmi Al-Janubi    | الهاشمي الجنوبي
+Al-Marka                | الماركة
+Al-Naser               | الناصر
+Al-Nuzha               | النزهة الشرقية
+Al-Quwaismeh           | القويسمة
+Al-Rusaifa             | الرصيفة
+Al-Sahab               | السحاب
+Al-Zarqa Road          | طريق الزرقاء
+Hai Al-Nasser          | حي الناصر
+Hai Al-Rashid          | حي الرشيد
+Jabal Al-Nathif        | جبل النظيف
+Jabal Al-Taj           | جبل التاج
+Jabal Nasr             | جبل نصر
+Marka                  | ماركا
+Muaddi                 | معدي
+Prince Mohammad St East| شارع الأمير محمد الشرقي
+Tallal St              | شارع طلال
+Um Al-Basateen         | أم البساتين
+Zarqa Bridge           | جسر الزرقاء
+
+── AMMAN CENTRAL (وسط عمان) ──────────────────
+1st Circle             | الدوار الأول
+2nd Circle             | الدوار الثاني
+3rd Circle             | الدوار الثالث
+4th Circle             | الدوار الرابع
+5th Circle             | الدوار الخامس
+6th Circle             | الدوار السادس
+7th Circle             | الدوار السابع
+8th Circle             | الدوار الثامن
+Al-Balad (Downtown)    | البلد
+Al-Husseini Mosque     | المسجد الحسيني
+Al-Mahatta             | المحطة
+Al-Maidan              | الميدان
+Al-Nasr Square         | ساحة الناصر
+Arabic College         | الكلية العربية
+Gold Market            | سوق الذهب
+King Faisal St         | شارع الملك فيصل
+King Hussein St        | شارع الملك حسين
+King Talal St          | شارع الملك طلال
+Municipality Circle    | دوار الأمانة
+Palace of Justice      | قصر العدل
+Paris Circle           | دوار باريس
+Prince Mohammad St     | شارع الأمير محمد
+Rainbow Street         | شارع الرينبو
+
+── AMMAN NORTH (شمال عمان) ───────────────────
+Abu Nsair              | أبو نصير
+Al-Bnayyat             | البنيات
+Al-Qastal              | القسطل
+Khalda                 | خلدا
+Marj Al-Hamam          | مرج الحمام
+Shafa Badran           | شفا بدران
+Tabarbour              | طبربور
+Tla'a Al-Ali North     | تلاع العلي الشمالي
+Wadi Al-Seer           | وادي السير
+
+── AMMAN SOUTH (جنوب عمان) ───────────────────
+Al-Jiza                | الجيزة
+Al-Muqabalayn          | المقابلين
+Al-Sahab               | الصحاب
+Airport Area           | منطقة المطار
+Al-Manshiyeh           | المنشية
+Al-Qastal              | القسطل الجنوبي
+Naur                   | ناعور
+
+── ZARQA GOVERNORATE (محافظة الزرقاء) ────────
+Al-Zarqa Al-Jadida     | الزرقاء الجديدة
+Al-Zarqa Al-Qadima     | الزرقاء القديمة
+Al-Russaifa            | الرصيفة
+Al-Azraq               | الأزرق
+Hay Al-Khadra          | حي الخضراء
+Hay Al-Zaytoun         | حي الزيتون
+Iskan                  | الإسكان
+Jabal Al-Abyad         | جبل الأبيض
+King Talal Dam          | سد الملك طلال
+Sukhneh                | السخنة
+Zarqa Industrial       | الزرقاء الصناعية
+
+── IRBID GOVERNORATE (محافظة إربد) ───────────
+Al-Husn                | الحصن
+Al-Ramtha              | الرمثا
+Al-Turra               | الطرة
+Hay Al-Nuzha Irbid     | حي النزهة إربد
+Irbid City Center      | وسط إربد
+Irbid University Area  | منطقة جامعة إربد
+Jadara University      | جامعة جدارا
+Jordan University of Science | جامعة العلوم والتكنولوجيا
+Kufr Asad              | كفر أسد
+Kufr Soum              | كفر سوم
+
+── AQABA GOVERNORATE (محافظة العقبة) ─────────
+Aqaba City Center      | وسط العقبة
+Aqaba Free Zone        | المنطقة الحرة العقبة
+Aqaba Port             | ميناء العقبة
+King Hussein St Aqaba  | شارع الملك حسين العقبة
+South Beach            | الشاطئ الجنوبي
+
+── MADABA GOVERNORATE (محافظة مادبا) ─────────
+Madaba City Center     | وسط مادبا
+Madaba Main St         | الشارع الرئيسي مادبا
+Mount Nebo Area        | منطقة جبل نيبو
+
+── BALQA GOVERNORATE (محافظة البلقاء) ────────
+Al-Salt City           | مدينة السلط
+Ein Al-Basha           | عين الباشا
+Fuhais                 | الفحيص
+Mahis                  | ماحص
+
+── KARAK GOVERNORATE (محافظة الكرك) ──────────
+Karak City Center      | وسط الكرك
+Karak Castle Area      | منطقة قلعة الكرك
+Mazar                  | المزار
+
+── JERASH GOVERNORATE (محافظة جرش) ───────────
+Jerash City Center     | وسط جرش
+Jerash Ruins Area      | منطقة آثار جرش
+
+═══════════════════════════════════════════════
+🗄️ DATABASE SCHEMA
+═══════════════════════════════════════════════
+
+Table: zones
+- id, name_ar, name_en, governorate, 
+  region (west/east/central/north/south),
+  is_active (default true)
+
+Table: users
+- id, full_name, phone, email,
+  password_hash, role (manager/driver/customer),
+  zone_id (FK, for drivers),
+  status (available/busy/off),
+  avatar_url, created_at, is_active
+
+Table: orders
+- id (format: YW-2026-XXXX),
+  from_business, from_address, from_zone_id,
+  to_customer_name, to_phone,
+  to_address, to_zone_id,
+  priority (urgent/normal),
+  status (pending/assigned/picked/delivered/cancelled),
+  driver_id (FK),
+  notes, created_at, assigned_at,
+  picked_at, delivered_at,
+  tracking_token (unique random string for public link)
+
+Table: ratings
+- id, order_id (FK), driver_id (FK),
+  customer_name, stars (1-5),
+  comment, created_at
+
+Table: notifications
+- id, user_id (FK), message,
+  type (order/system/rating),
+  is_read, created_at
+
+═══════════════════════════════════════════════
+🔐 AUTH SYSTEM
+═══════════════════════════════════════════════
+Pages:
+1. /login — phone + password, logo centered
+2. /register — full name, phone, password, 
+   role selector (manager icon / driver icon),
+   zone dropdown (searchable, from DB) for drivers
+3. Auto-redirect to correct dashboard after login
+
+JWT:
+- Access token: 1 hour
+- Refresh token: 7 days
+- Store in httpOnly cookies
+
+═══════════════════════════════════════════════
+👥 THREE DASHBOARDS
+═══════════════════════════════════════════════
+
+1. MANAGER DASHBOARD (/manager)
+Header:
+- Logo + "يلا وصل" + notification bell
+- Today's date in Arabic
+
+Stats row (like Careem business):
+- Total orders today
+- Delivered
+- In progress  
+- Pending
+- Average rating this week
+
+Orders Table:
+- Columns: Order ID | From | To | Zone | 
+           Priority | Status | Driver | Time | Actions
+- Filter by: status, zone, priority, date
+- Search by order ID or customer name
+- Color coded rows by priority
+- Button per row: "عيّن سائق" or "اقترح AI"
+
+AI Suggestion Panel:
+- Floating button "🤖 اقتراح ذكي"
+- Opens panel showing: recommended driver + reason
+- One-click confirm to assign
+
+2. DRIVER DASHBOARD (/driver) — MOBILE FIRST
+- Big greeting: "أهلاً [name] 🏍️"
+- Status toggle: متاح / مشغول / خارج الدوام
+- My Orders list with status update buttons
+- Each order card shows:
+  * From → To with zone names
+  * Priority badge
+  * Customer phone (tap to call)
+  * Big action button: 
+    "استلمت الطلب" → "في الطريق" → "تم التسليم"
+- Today's summary: X orders, X delivered, rating
+
+3. CUSTOMER TRACKING (/track/:token) — NO LOGIN
+- Clean page like Careem tracking
+- Order number + status
+- Progress bar: استلم ← في الطريق ← تم التسليم
+- Driver name + rating stars
+- Animated delivery icon
+- "قيّم تجربتك" button after delivery
+  → Star rating 1-5 + comment box
+
+═══════════════════════════════════════════════
+🤖 AI FEATURES
+═══════════════════════════════════════════════
+Model: claude-sonnet-4-20250514
+API Key: from environment variable ANTHROPIC_API_KEY
+
+Feature 1 — Smart Driver Suggestion:
+Endpoint: POST /api/ai/suggest-driver
+Input: order zone, priority, available drivers list
+Prompt to Claude:
+  "أنت مساعد ذكي لنظام توصيل في عمان، الأردن.
+   لدي طلب في منطقة [zone] بأولوية [priority].
+   السائقون المتاحون: [list with zones and current load].
+   اقترح أفضل سائق مع سبب قصير بالعربي (جملة واحدة)."
+Output: { driver_id, driver_name, reason }
+
+Feature 2 — Smart Zone Detection:
+When typing address → AI suggests the correct zone
+
+═══════════════════════════════════════════════
+⭐ RATINGS SYSTEM
+═══════════════════════════════════════════════
+- After order delivered → customer gets rating prompt
+- 1-5 stars + optional comment
+- Driver sees their average rating on dashboard
+- Manager sees all ratings with filters
+- Ratings affect driver ranking in AI suggestions
+- Top rated drivers get "⭐ موثوق" badge
+
+═══════════════════════════════════════════════
+🔔 NOTIFICATIONS
+═══════════════════════════════════════════════
+- Manager: new order arrives, driver changed status
+- Driver: new order assigned to them
+- Bell icon with unread count
+- Notification dropdown with list
+- Mark all as read button
+
+═══════════════════════════════════════════════
+📦 SEED DATA
+═══════════════════════════════════════════════
+Demo accounts:
+- manager@yalla.jo / Manager123! → manager role
+- driver1@yalla.jo / Driver123!  → driver, Abdoun zone
+- driver2@yalla.jo / Driver123!  → driver, Sweifieh zone
+- driver3@yalla.jo / Driver123!  → driver, Shmaisani zone
+
+8 sample drivers with realistic Jordanian names
+10 sample orders across different zones and statuses
+5 sample ratings
+
+═══════════════════════════════════════════════
+🚫 OUT OF SCOPE
+═══════════════════════════════════════════════
+- Real GPS (address = text field)
+- Real SMS
+- Real payments
+- Native mobile app
+
+═══════════════════════════════════════════════
+📁 PROJECT STRUCTURE
+═══════════════════════════════════════════════
+yalla-wassel/
+├── backend/
+│   ├── app.py
+│   ├── config.py
+│   ├── models.py
+│   ├── auth.py
+│   ├── seed.py
+│   ├── zones_data.py     ← ALL zones listed above
+│   ├── requirements.txt
+│   └── routes/
+│       ├── auth.py
+│       ├── orders.py
+│       ├── drivers.py
+│       ├── ratings.py
+│       ├── notifications.py
+│       └── ai.py
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── Sidebar.jsx
+│   │   │   ├── OrderCard.jsx
+│   │   │   ├── DriverCard.jsx
+│   │   │   ├── StatusBadge.jsx
+│   │   │   ├── ZoneSelect.jsx    ← searchable dropdown
+│   │   │   ├── RatingModal.jsx
+│   │   │   └── Notifications.jsx
+│   │   ├── pages/
+│   │   │   ├── Login.jsx
+│   │   │   ├── Register.jsx
+│   │   │   ├── ManagerDashboard.jsx
+│   │   │   ├── DriverDashboard.jsx
+│   │   │   └── TrackOrder.jsx
+│   │   ├── hooks/
+│   │   │   ├── useAuth.js
+│   │   │   └── useOrders.js
+│   │   ├── api/
+│   │   │   └── client.js
+│   │   └── App.jsx
+│   ├── package.json
+│   └── tailwind.config.js
+├── .replit
+├── replit.nix
+└── README.md
+
+═══════════════════════════════════════════════
+⚙️ REPLIT CONFIG
+═══════════════════════════════════════════════
+.replit file:
+[run]
+command = "concurrently 'cd backend && python app.py' 
+           'cd frontend && npm start'"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[[ports]]  
+localPort = 3000
+externalPort = 3000
+
+Environment variables (Replit Secrets):
+- ANTHROPIC_API_KEY
+- JWT_SECRET_KEY
+- FLASK_ENV = development
+
+═══════════════════════════════════════════════
+✅ BUILD ORDER — FOLLOW EXACTLY
+═══════════════════════════════════════════════
+Step 1: Setup project structure + .replit config
+Step 2: zones_data.py with ALL zones above
+Step 3: Database models + seed.py
+Step 4: Auth system (register/login/JWT)
+Step 5: Orders CRUD API
+Step 6: Ratings API
+Step 7: Notifications API
+Step 8: AI suggestion endpoint
+Step 9: Frontend — Login + Register pages
+Step 10: Manager Dashboard
+Step 11: Driver Dashboard (mobile-first)
+Step 12: Customer tracking page
+Step 13: Connect everything + test all flows
+Step 14: README with setup instructions
+
+After each step say: "✅ Step X done — ready for next?"
+Build complete working production-ready code.
